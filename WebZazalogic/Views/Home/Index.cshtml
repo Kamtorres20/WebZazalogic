@@ -1,0 +1,149 @@
+﻿@model List<WebZazalogic.Models.ViewModels.AtencionCliente>
+@{
+    ViewBag.Title = "Home Page";
+}
+<link href="~/Content/datepicker.css" rel="stylesheet" />
+
+<script src="~/Scripts/jquery-3.4.1.js"></script>
+<script src="~/Scripts/bootstrap-datepicker.js"></script>
+
+<h2>FORMULARIO WEB DE ATENCION AL CLIENTE</h2>
+<div class="row">
+    <div class="col-md-2"><label>Nombre: </label></div>
+    <div class="col-md-10"><input id="txtnombre" class="form-control" name="Nombre" /></div>
+</div>
+<div class="row">
+    <div class="col-md-2"><label>Apellidos:</label></div>
+    <div class="col-md-10"><input id="txtapellidos" class="form-control" name="Apellidos" /></div>
+</div>
+<div class="row">
+    <div class="col-md-2"><label>Telefono Celular: <span>(Requerido)</span></label></div>
+    <div class="col-md-10"><input id="txtcelular" class="form-control" name="Celular" /></div>
+</div>
+<div class="row">
+    <div class="col-md-2"><label>Email:</label></div>
+    <div class="col-md-10"><input id="txtEmail" class="form-control" name="Email" type="email" placeholder="example@example.com" /></div>
+</div>
+<div class="row">
+    <div class="col-md-2"><label>Sexo:</label></div>
+    <div class="col-md-10">
+        <label class="radio-inline">
+            <input type="radio" name="optradio" value="H">Hombre
+        </label>
+        <label class="radio-inline">
+            <input type="radio" name="optradio" value="M">Mujer
+        </label>
+    </div>
+</div>
+<br />
+<div class="row">
+    <div class="col-md-2"><label>Motivo:</label></div>
+    <div class="col-md-10">
+        <select id="slmotivo" class="custom-select" style="width:150px;">
+            <option value="I">Incidencia</option>
+            <option value="Q">Queja</option>
+            <option value="R">Reclamación</option>
+            <option value="S">Sugerencia</option>
+        </select>
+    </div>
+</div>
+
+<div class="text-center panel-body">
+    <button id="btnenviar" class="btn btn-primary">Enviar</button>
+</div>
+
+
+
+
+<br />
+
+
+<h2>Atencion Cliente List</h2>
+<hr />
+<div id="dp6" data-date="12-02-2012" data-date-format="dd-mm-yyyy"></div>
+
+<input class="form-control" id="myFilter" type="text" placeholder="Search here">
+<table id="tblAtencionCliente" class="table table-sm table-striped table-bordered m-2">
+    <thead>
+        <tr>
+            <th>AtencionClienteId Id</th>
+            <th>Nombre</th>
+            <th>Apellidos</th>
+            <th>Celular</th>
+            <th>Email</th>
+            <th>Sexo</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
+
+<script type="text/javascript">
+    
+    $(document).ready(function () {
+
+        $('#dp6').datepicker('show');
+
+        setTimeout(function () {
+            window.location.reload(1);
+        }, 30000);
+
+        $("#myFilter").on("keyup", function () {
+            var value = $(this).val().toLowerCase();
+            $("#tblAtencionCliente tr").filter(function () {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+
+    });
+
+    $("#btnenviar").click(function () {
+
+        var oAtencioncliente = {
+            Nombre: $("#txtnombre").val(),
+            Apellidos: $("#txtapellidos").val(),
+            Celular: $("#txtcelular").val(),
+            Email: $("#txtEmail").val(),
+            Sexo: $('input[name=optradio]:checked').val(),
+            Motivo: $('#slmotivo option:selected').val()
+        };
+
+        $.post("/Home/PostAtencionClientes", oAtencioncliente)
+            .done(function (data) {
+                alert(data);
+                if (data != null || data != '') {
+                    GetAllAtencionCliente(oAtencioncliente);
+                }
+
+            });
+    });
+
+    function GetAllAtencionCliente(oAtencioncliente) {
+        $.post("/Home/GetAllAtencionCliente", oAtencioncliente)
+            .done(function (atencionClientes) {
+                $("#tblAtencionCliente tbody tr").remove();
+                var data = $.parseJSON(atencionClientes);
+
+                $.each(data, function (dt) {
+
+                    $("#tblAtencionCliente tbody").append("<tr>"
+                        + " <td>" + data[dt].AtencionClienteId + "</td>"
+                        + " <td>" + data[dt].Nombre + "</td>"
+                        + " <td>" + data[dt].Apellidos + "</td>"
+                        + " <td>" + data[dt].Celular + "</td>"
+                        + " <td>" + data[dt].Email + "</td>"
+                        + " <td>" + data[dt].Sexo + "</td>"
+                        + " <td>" + data[dt].Motivo + "</td>"
+                        + " <td>" + data[dt].Fecha_Alta + "</td>"
+                        + " </tr>");
+
+
+
+                });
+
+            });
+    }
+
+
+</script>
